@@ -6,6 +6,9 @@
 	<title>Accessibility Report For "{{pageUrl}}" ({{date}})</title>
 
 	<style>
+		*, :before, :after {
+			box-sizing: border-box;
+		}
 
 		html, body {
 			margin: 0;
@@ -17,9 +20,9 @@
 			color: #333;
 		}
 		li {
-			margin-bottom: 15px;
+			margin-bottom: 10px;
 		}
-		h1, h2, p, pre, ul {
+		h1, h2, h3, p, pre, ul {
 			margin-top: 0;
 			margin-bottom: 0;
 		}
@@ -29,6 +32,9 @@
 			line-height: 24px;
 		}
 		h2 {
+			font-size: 18px;
+		}
+		h3 {
 			font-size: 16px;
 		}
 		pre {
@@ -42,24 +48,51 @@
 			padding: 25px;
 		}
 
-		.counts {
+		.issue-types {
 			margin-top: 30px;
-			font-size: 20px;
 		}
-		.count {
-			display: inline-block;
-			padding: 5px;
-			border-radius: 5px;
-			border: 1px solid #eee;
+		.issue-list {
+			margin-top: 30px;
 		}
-
+		.facet-list {
+			display: flex;
+			flex-flow: row wrap;
+			justify-content: space-between;
+		}
 		.clean-list {
 			margin-left: 0;
 			padding-left: 0;
 			list-style: none;
 		}
-		.results-list {
-			margin-top: 30px;
+
+		.count {
+			padding: 5px;
+			border-radius: 5px;
+			border: 1px solid #eee;
+			flex-grow: 1;
+		}
+		.summary {
+			margin-bottom: 10px;
+			display: flex;
+			align-items: baseline;
+			cursor: pointer;
+		}
+		.facet {
+			width: 50%;
+			width: calc(50% - 5px);
+			padding: 10px;
+			border-radius: 5px;
+			border: 1px solid #eee;
+		}
+
+		.filter-error:checked ~ .results-list > li:not(.error) {
+			display: none;
+		}
+		.filter-warning:checked ~ .results-list > li:not(.warning) {
+			display: none;
+		}
+		.filter-notice:checked ~ .results-list > li:not(.notice) {
+			display: none;
 		}
 
 		.result {
@@ -85,28 +118,84 @@
 </head>
 <body>
 
-	<div class="page">
-
+	<main class="page">
 		<h1>Accessibility Report For "{{pageUrl}}"</h1>
 		<p>Generated at: {{date}}</p>
 
-		<p class="counts">
-			<span class="count error">{{errorCount}} errors</span>
-			<span class="count warning">{{warningCount}} warnings</span>
-			<span class="count notice">{{noticeCount}} notices</span>
-		</p>
+		<h2 id="issue-types" class="issue-types">Issue Types</h2>
 
+		<details class="details-error" open>
+			<summary class="summary">
+				<span class="count error">{{errorCount}} errors</span>
+			</summary>
+			<ul class="clean-list facet-list">
+				{{#errorFacets}}
+					<li class="facet error">
+						<h3>{{value}} errors related to
+							{{#criteria}}
+								<a href="https://www.w3.org/TR/WCAG20-TECHS/{{.}}.html" target="_blank">{{.}}</a>
+							{{/criteria}}
+						</h3>
+						{{message}}
+					</li>
+				{{/errorFacets}}
+			</ul>
+		</details>
+		<details class="details-warning" open>
+			<summary class="summary">
+				<span class="count warning">{{warningCount}} warnings</span>
+			</summary>
+			<ul class="clean-list facet-list">
+				{{#warningFacets}}
+					<li class="facet warning">
+						<h3>{{value}} warnings related to
+							{{#criteria}}
+								<a href="https://www.w3.org/TR/WCAG20-TECHS/{{.}}.html" target="_blank">{{.}}</a>
+							{{/criteria}}
+						</h3>
+						{{message}}
+					</li>
+				{{/warningFacets}}
+			</ul>
+		</details>
+		<details class="details-notice" open>
+			<summary class="summary">
+				<span class="count notice">{{noticeCount}} notices</span>
+			</summary>
+			<ul class="clean-list facet-list">
+				{{#noticeFacets}}
+					<li class="facet notice">
+						<h3>{{value}} notices related to
+							{{#criteria}}
+								<a href="https://www.w3.org/TR/WCAG20-TECHS/{{.}}.html" target="_blank">{{.}}</a>
+							{{/criteria}}
+						</h3>
+						{{message}}
+					</li>
+				{{/noticeFacets}}
+			</ul>
+		</details>
+
+		<h2 id="issue-list" class="issue-list">Issues List</h2>
+
+		<input type="radio" id="filter-all" class="filter-all" name="filter" aria-labelledby="issue-list" checked>
+		<label for="filter-all">Show All</label>
+		<input type="radio" id="filter-error" class="filter-error" name="filter" aria-labelledby="issue-list">
+		<label for="filter-error">Show Errors</label>
+		<input type="radio" id="filter-warning" class="filter-warning" name="filter" aria-labelledby="issue-list">
+		<label for="filter-warning">Show Warnings</label>
+		<input type="radio" id="filter-notice" class="filter-notice" name="filter" aria-labelledby="issue-list">
+		<label for="filter-notice">Show Notices</label>
 		<ul class="clean-list results-list">
 			{{#issues}}
 			<li class="result {{type}}">
-				<h2>{{typeLabel}}: {{message}}</h2>
+				<h3>{{typeLabel}}: {{message}}</h3>
 				<p>{{code}}</p>
 				<pre>{{context}} (select with "{{selector}}")</pre>
 			</li>
 			{{/issues}}
 		</ul>
-
-	</div>
+	</main>
 
 </body>
 </html>
